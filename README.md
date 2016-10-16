@@ -7,10 +7,12 @@ TODO:
 - Do load balancing with Elastic Beanstalk
 
 Components: 
-- Tweet stream: Push message style stream of tweets using [Tweepy](http://docs.tweepy.org/en/v3.4.0/streaming_how_to.html) in Python
-- [AWS Elasticsearch](https://aws.amazon.com/elasticsearch-service/?sc_channel=PS&sc_campaign=elasticsearch_2015&sc_publisher=google&sc_medium=elasticsearch_service_b&sc_content=elasticsearch_p&sc_detail=aws%20elastic%20search&sc_category=elasticsearch&sc_segment=96544045594&sc_matchtype=p&sc_country=US): Persistent storage for storing and indexing tweets as JSON files
-- Web App using Maps API
-- AWS Elastic Beanstalk
+- Tweet stream: Stream tweets with geo-location in push-message fashion using [Tweepy](http://docs.tweepy.org/en/v3.4.0/streaming_how_to.html).
+- [AWS Elasticsearch](https://aws.amazon.com/elasticsearch-service/?sc_channel=PS&sc_campaign=elasticsearch_2015&sc_publisher=google&sc_medium=elasticsearch_service_b&sc_content=elasticsearch_p&sc_detail=aws%20elastic%20search&sc_category=elasticsearch&sc_segment=96544045594&sc_matchtype=p&sc_country=US): Persistent storage and index for tweets.
+- Amazon SQS: Message queuing service that alerts webapp when a new tweet has been found. 
+- Back-end: Fetches tweets in realtime as well as those stored persistently and displays them onto the front-end. 
+- Front-end: Maps API. 
+- AWS Elastic Beanstalk: For load balancing.
 
 AWS Elasticsearch instance: [URL]('https://search-es-twitter-yarekxa5djp3rkj7kp735gvacy.us-west-2.es.amazonaws.com/')
 
