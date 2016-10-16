@@ -1,8 +1,13 @@
 # elastictweetmap
 A scalable tweet map using AWS Elastic Beanstalk and Elasticsearch
 
+TODO:
+- Retrieve saved tweets from Elasticsearch
+- Make webapp backend and frontend
+- Do load balancing with Elastic Beanstalk
+
 Components: 
-- Tweet Stream: Push message style stream of tweets using [Tweepy](http://docs.tweepy.org/en/v3.4.0/streaming_how_to.html) in Python
+- Tweet stream: Push message style stream of tweets using [Tweepy](http://docs.tweepy.org/en/v3.4.0/streaming_how_to.html) in Python
 - [AWS Elasticsearch](https://aws.amazon.com/elasticsearch-service/?sc_channel=PS&sc_campaign=elasticsearch_2015&sc_publisher=google&sc_medium=elasticsearch_service_b&sc_content=elasticsearch_p&sc_detail=aws%20elastic%20search&sc_category=elasticsearch&sc_segment=96544045594&sc_matchtype=p&sc_country=US): Persistent storage for storing and indexing tweets as JSON files
 - Web App using Maps API
 - AWS Elastic Beanstalk
@@ -19,6 +24,7 @@ The following are skimmed from the twitter stream and inserted into elastic sear
 - place
 
 Example of JSON object stored in Elasticsearch:
+```json
 	{
 	   "id": 787531772296769500,
 	   "text": "I truly have the best family!! I love that you guys took the time… https://t.co/DjArPPiHdf",
@@ -64,3 +70,9 @@ Example of JSON object stored in Elasticsearch:
 	      "name": "Glendora"
 	   }
     }
+```
+
+Python packages needed for installation (pip install packagename):
+- tweepy
+- elasticsearch
+- boto
