@@ -16,7 +16,7 @@ Components:
 
 AWS Elasticsearch instance: [URL]('https://search-es-twitter-yarekxa5djp3rkj7kp735gvacy.us-west-2.es.amazonaws.com/')
 
-[Elasticsearch Python API](https://elasticsearch-py.readthedocs.io/en/master/) is used to connect with the instance. Use the [Sense plugin](https://chrome.google.com/webstore/detail/sense-beta/lhjgkmllcaadmopgmanpapmpjgmfcfig?hl=en) to query the Elasticsearch instance for debug.
+[Elasticsearch Python API](https://elasticsearch-py.readthedocs.io/en/master/) is used to connect with the instance. Use the [Sense plugin](https://chrome.google.com/webstore/detail/sense-beta/lhjgkmllcaadmopgmanpapmpjgmfcfig?hl=en) to query the Elasticsearch instance for debug. [Link to JSON tutorial](http://joelabrahamsson.com/elasticsearch-101/) for querying Elasticsearch.
 
 The following are skimmed from the twitter stream and inserted into elastic search:
 - id
@@ -25,7 +25,7 @@ The following are skimmed from the twitter stream and inserted into elastic sear
 - coordinates
 - place
 
-Example of JSON object stored in Elasticsearch:
+Example of JSON object stored in Elasticsearch as well as the message body of SQS notification:
 ```json
 	{
 	   "id": 787531772296769500,
