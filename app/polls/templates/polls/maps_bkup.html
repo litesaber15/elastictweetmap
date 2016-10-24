@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <title>Info windows</title>
+        <style>
+        html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+        }
+        </style>
+    </head>
+    <body>
+    <div id="map-canvas" style="width:700px; height:500px; margin-left:80px;" ></div>
+    <script>
+
+initialize();
+
+function initialize() {
+    var myLatlng = new google.maps.LatLng(40.8075, -73.9619);
+    var mapOptions = {
+        zoom: 12,
+        center: myLatlng
+    };
+    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    var tweets = {{ coordinates | safe}};
+    if(tweets.length>0){
+        alert(tweets.length + " results found");
+        for (i = 0; i < tweets.length; i++) { 
+            var latlng = new google.maps.LatLng(tweets[i][0], tweets[i][1])
+                var marker = new google.maps.Marker({
+                    position: latlng,
+                    map: map,
+                });
+            google.maps.event.addListener(marker, 'click', function() {
+                infowindow.open(map,marker);
+            });
+            var contentString = '<div id="content">'+
+                '<p>' + tweets[i][1] + '</p>'+
+                '<p>' + tweets[i][0] + '</p>'+
+                '</div>';
+            var infowindow = new google.maps.InfoWindow({
+                content: contentString
+            });
+        }
+        map.setZoom(2);
+    }
+    
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+}
+        </script>
+        <div style="height: 100px; margin-left:10px; margin-top:10px; padding: 0px;">
+            <form name="form" action="/polls/map" method='POST'>
+                <select name="form">
+                    <option value="isis">ISIS</option>
+                    <option value="iraq">Iraq</option>
+                    <option value="obama">Obama</option>
+                    <option value="ebola">Ebola</option>
+                    <option value="africa">Africa</option>
+                    <option value="giants">Giants</option>            
+                    <option value="royals">Royals</option>            
+                    <option value="world">World</option>            
+                    <option value="series">Series</option>            
+                    <option value="test">Test</option>            
+                </select>
+                <button type="submit">Find tweets</button>
+                {% csrf_token %}
+            </form>
+        </div>
+        <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAP17O3ZJm2B631F0o0uZvvtCO8NUkTHNc&callback=initialize">
+        </script>
+    </body>
+</html>

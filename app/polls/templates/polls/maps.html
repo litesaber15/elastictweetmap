@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+#map {
+    height: 500px;
+    width: 100%px;
+}
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script>
+function initMap() {
+    var uluru = {lat: -25.363, lng: 131.044};
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 4,
+        center: uluru
+    });
+    var marker = new google.maps.Marker({
+        position: uluru,
+        map: map
+    });
+
+    var tweets = {{plot | safe}};
+       if(tweets.length>0){
+       alert(tweets.length + " results found");
+        for (i = 0; i < tweets.length; i++) 
+        {
+            var item = tweets[i];
+            var latlng = new google.maps.LatLng(item['lat'], item['lng']);
+            var marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            });
+            /*
+            google.maps.event.addListener(marker, 'click', function() {
+                infowindow.open(map,marker);
+            });
+            var contentString = '<div id="content">'+
+                '<p>' + item[i]['info_window'] + '</p>'+
+                '</div>';
+            var infowindow = new google.maps.InfoWindow({
+                content: contentString
+            });
+            */
+        }
+        map.setZoom(2);
+    }
+}
+        </script>
+        <div style="height: 100px; margin-left:10px; margin-top:10px; padding: 0px;">
+            <form name="form" action="/polls/map" method='POST'>
+                <select name="select">
+                    <option value="programming">Programming</option>
+                    <option value="love">Love</option>
+                    <option value="trump">Trump</option>
+                    <option value="clinton">Clinton</option>
+                    <option value="technology">Technology</option>
+                    <option value="movies">Movies</option>                
+                    <option value="football">Football</option>                
+                    <option value="india">India</option>                
+                    <option value="elections">Elections</option>                
+                    <option value="travel">Travel</option>                
+                </select>
+                <button type="submit">Find tweets</button>
+                {% csrf_token %}
+            </form>
+        </div>
+        <script async defer
+                        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAB8-ny5X3TRAkXsjgO7idxXFuRrLx4g1I&callback=initMap"></script>
+        </script>
+    </body>
+</html>
+
