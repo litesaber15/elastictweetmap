@@ -2,21 +2,13 @@ import tweepy
 import json
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
+from credentials import aws_id, aws_key, consumer_key, consumer_secret, access_token, access_token_secret, es_host
 
-#host = "search-jask-tweetmap-hhk4izgywmbpwob2zah4fcdiry.us-west-2.es.amazonaws.com"
-host = "search-es-twitter-yarekxa5djp3rkj7kp735gvacy.us-west-2.es.amazonaws.com"
-# Authentication details. To  obtain these visit dev.twitter.com
-consumer_key="L2edGlDjo2FUxRSUL1S2mh8gY"
-consumer_secret="rTdVnUGJ6FP0Czr67vj9ELwr3m1kml2Bg26orTRodu60URBj5O"
-access_token="789927305804218368-E8Uj5Ct5H5BMYrEGEFTHu6uNZFFxdls"
-access_token_secret="AZtW0krPGCoQs4OwGsKMRSmpGTeej3iBev3vvqL6B9MdC"
 
-#awsauth = AWS4Auth('AKIAJ7HHWCEARYQMB63Q', 'oRVKo5yx0ceUk9SmYLsTkupo84loy2tAM2kO5gNg','us-west-2','es')
-
-awsauth = AWS4Auth('AKIAJBZBEHQYGYRDJCIQ', '0E5N6o/FZ5CWiT+Y5KA7JitpXQ6mB6px2Xc7/Mgj','us-west-2','es')
+awsauth = AWS4Auth(aws_id, aws_key,'us-west-2','es')
 
 es = Elasticsearch(
-        hosts=[{'host': host, 'port': 443}],
+        hosts=[{'host': es_host, 'port': 443}],
         use_ssl=True,
         http_auth=awsauth,
         verify_certs=True,
