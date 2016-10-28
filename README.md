@@ -14,7 +14,7 @@ AWS Elasticsearch instance: [URL]('https://search-es-twitter-yarekxa5djp3rkj7kp7
 Screenshot of app:
 ![Screenshot 1](/scr1.png?raw=true "Screenshot of app")
 
-Filtering and live tweets:
+Filtering and displaying live tweets:
 ![Screenshot 2](/scr2.png?raw=true "Live tweet stream and filtering")
 
 The following are skimmed from the twitter stream and inserted into elastic search:
@@ -29,7 +29,7 @@ Example of JSON object stored in Elasticsearch as well as the message body of SQ
 ```json
 	{
 	   "id": 787531772296769500,
-	   "handle": "martha1445"
+	   "handle": "martha1445",
 	   "text": "I truly have the best family!! I love that you guys took the time… https://t.co/DjArPPiHdf",
 	   "time": "1476597180805",
 	   "coordinates": {
