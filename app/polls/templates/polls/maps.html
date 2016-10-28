@@ -1,31 +1,87 @@
 <!DOCTYPE html>
 <html>
+<title>Elastic TweetMap</title>
     <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- for testing with local version of cytoscape.js -->
+    <!-- <script src="../cytoscape.js/build/cytoscape.js"></script> -->
+
+    <style>
+      body {
+        font-family: Roboto;
+        font-size: 14px;
+        background-color: #34495e;
+        margin-top: 2%;
+        margin-bottom: 2%;
+      }
+      h1 {
+        opacity: 1;
+        color: #ecf0f1;
+        font-size: 2em;
+        text-align: center;
+        font-family: Roboto;
+      }
+      h3 {
+        opacity: 1;
+        color: #ecf0f1;
+        font-size: 1em;
+        text-align: center;
+        font-family: Roboto;
+      }
+
+      textarea{
+        width: 80%;
+        height: 50%;
+     }
+
+     .margin{
+        margin-top: 5%;
+        margin-left:30%;
+        margin-right: 30%;
+        text-align: center;
+
+     }
+    </style>
+
+
+
         <style>
 #map {
     height: 500px;
-    width: 100%px;
+    width: 100%;
 }
         </style>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <h1>Elastic TweetMap</h1>
+    <h3>A scalable tweet geolocation plot using AWS Elastic Beanstalk, Elasticsearch and SQS</h3>
     </head>
     <body>
         <div id="map"></div>
         <script>
+        var map;
 function initMap() {
-    var uluru = {lat: -25.363, lng: 131.044};
-    var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 4,
-        center: uluru
+    var nyc = {lat: 40.7128, lng: -74.0059};
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: nyc
     });
-    var marker = new google.maps.Marker({
-        position: uluru,
-        map: map
-    });
+    // var marker = new google.maps.Marker({
+    //     position: uluru,
+    //     map: map
+    // });
 
     var tweets = {{plot | safe}};
        if(tweets.length>0){
-       alert(tweets.length + " results found with filter "+$('#select').val());
+       //alert(tweets.length + " results found with filter "+$('#select').val());
+       $('#count').html(tweets.length.toString() + ' Tweets');
         for (i = 0; i < tweets.length; i++) 
         {
             var item = tweets[i];
@@ -34,49 +90,38 @@ function initMap() {
             position: latlng,
             map: map,
             });
-            /*
-            google.maps.event.addListener(marker, 'click', function() {
-                infowindow.open(map,marker);
-            });
-            var contentString = '<div id="content">'+
-                '<p>' + item[i]['info_window'] + '</p>'+
-                '</div>';
-            var infowindow = new google.maps.InfoWindow({
-                content: contentString
-            });
-            */
         }
-        map.setZoom(2);
+        //map.setZoom(2);
     }
 }
 
-
-// $.ajax({
-//     url:'ajax/getnewtweets',  // a normal get request
-//     success:function(data)
-//     {  // success is the callback when the server responds
-//          if is json what you decided to return then process the json dict
-//            if is normal html render it wherver you want
-        
-//         console.log(data);
-//         alert(data);
-
-//     }
-// });
 
 (function worker() {
   $.ajax({
     url: 'ajax/getnewtweets', 
     success: function(data) {
         var filter = $('#select').val();
+        var c = 0;
         for (id in data)
         {
-            if(data[id]['text'].indexOf(filter) !== -1)
+            if(filter == 'none' || data[id]['text'].indexOf(filter) !== -1)
             {
+                c += 1;
                 console.log(data[id]['text']);
+                $("#newtweets").append('<li><div class="panel panel-default"><div class="panel-heading">@'+data[id]['handle']+'</div><div class="panel-body">'+data[id]['text']+'</div></div></li>');
+                var item = data[id]['coordinates']
+                var latlng = new google.maps.LatLng(item['coordinates'][1], item['coordinates'][0]);
+                var marker = new google.maps.Marker({position: latlng, map:map});
             }
             else
-                console.log('No match for filter')   
+                console.log('No match for filter')
+        }
+        if(c>0)
+        {
+            var res = parseInt($('#count').text().split(" ")[0]);
+            res = res + c;
+            $('#count').html(res.toString() + ' Tweets');
+
         }
 
       
@@ -104,9 +149,9 @@ window.onload = function() {
 
 
         </script>
-        <div style="height: 100px; margin-left:10px; margin-top:10px; padding: 0px;">
-            <form name="form" action="/polls/map" method='POST'>
-                <select id = 'select' name="select">
+        <div>
+            <form name="form" action="/polls/map" method='POST' class="margin">
+                <select id = 'select' name="select" class="form-control">
                     <option value="none">No Filter</option>
                     <option value="programming">Programming</option>
                     <option value="love">Love</option>
@@ -119,10 +164,19 @@ window.onload = function() {
                     <option value="elections">Elections</option>                
                     <option value="travel">Travel</option>              
                 </select>
-                <button type="submit">Refresh</button>
+                <br>
+                <button id="count" name="count" type="button" class="btn btn-success btn-lg"> 0 Tweets </button>
+                <button type="submit" class="btn btn-default btn-lg">Apply Filter</button>
                 {% csrf_token %}
             </form>
+
+            <h1>Live Tweets</h1>
+            <ul id="newtweets" class="list-unstyled" style="margin-left: 20%; margin-right: 20%; margin-top: 2%">
+            </ul>
+
         </div>
+
+
         <script async defer
                         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAB8-ny5X3TRAkXsjgO7idxXFuRrLx4g1I&callback=initMap"></script>
         </script>

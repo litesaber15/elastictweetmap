@@ -42,7 +42,7 @@ class StreamListener(tweepy.StreamListener):
 
       #do some processing if tweet is of supported language and has geo-location
       if json_data['coordinates'] is not None and json_data['lang'] in self.supportedLang:
-        print('Tweet #'+str(self.count))
+        print('Tweet #'+str(self.count) + ' @'+json_data['user']['screen_name'])
         print(json_data['text'].lower().encode('ascii','ignore').decode('ascii'))
         
         #create JSON object of relevant content from response
@@ -51,7 +51,8 @@ class StreamListener(tweepy.StreamListener):
                     'time': json_data['timestamp_ms'],
                     'text': json_data['text'].lower().encode('ascii','ignore').decode('ascii'),
                     'coordinates': json_data['coordinates'],
-                    'place': json_data['place']
+                    'place': json_data['place'],
+                    'handle': json_data['user']['screen_name']
                   }
         #add to Elasticsearch
         self.es.index(index="tweets", doc_type="twitter_twp", body=skimmed)
