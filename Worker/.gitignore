@@ -1,0 +1,4 @@
+*.pyc
+credentials.py
+api_key.txt
+alchemy_python/
