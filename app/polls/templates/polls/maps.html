@@ -104,7 +104,8 @@ function initMap() {
         var c = 0;
         for (id in data)
         {
-            if(filter == 'none' || data[id]['text'].indexOf(filter) !== -1)
+            console.log(data[id]);
+            /*if(filter == 'none' || data[id]['text'].indexOf(filter) !== -1)
             {
                 c += 1;
                 console.log(data[id]['text']);
@@ -114,7 +115,7 @@ function initMap() {
                 var marker = new google.maps.Marker({position: latlng, map:map});
             }
             else
-                console.log('No match for filter')
+                console.log('No match for filter')*/
         }
         if(c>0)
         {

@@ -1,7 +1,8 @@
-from credentials import aws_key, aws_id, aws_region, sqs_name
+from credentials import aws_key, aws_id, aws_region, sqs_name, arn
 from time import sleep
 import json
 import boto.sqs
+import boto.sns
 from boto.sqs.message import Message
 import ast
 from alchemyapi import AlchemyAPI
@@ -13,8 +14,9 @@ class NotificationManager():
 			self.sqs = boto.sqs.connect_to_region(aws_region, aws_access_key_id=aws_id, aws_secret_access_key=aws_key)
 			self.sqs_queue = self.sqs.get_queue(sqs_name)
 			self.alc = AlchemyAPI()
+			self.sns = boto.sns.connect_to_region(aws_region)
 		except Exception as e:
-			print('Could not connect to SQS')
+			print('Could not connect')
 			print(e)
 		print('Connected to AWS SQS: '+ str(self.sqs))
 
@@ -38,14 +40,13 @@ class NotificationManager():
 					print("Sentiment: "+ tweet['type'])
 
 					#send processed tweet to SNS
-
+					self.sns.publish(arn, json.dumps(tweet), subject='Sub')
 
 					#delete notification when done
 					self.sqs_queue.delete_message(m)
 					print('Done')
 			else:
-				sleep(1)
-			
+				sleep(1)	
 
 #do the magic
 notman = NotificationManager(aws_id, aws_key)
