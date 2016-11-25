@@ -110,10 +110,22 @@
                     {
                         c += 1;
                         console.log(data[id]['text']);
-                        $("#newtweets").append('<li><div class="panel panel-default"><div class="panel-heading">@'+data[id]['handle']+'</div><div class="panel-body">'+data[id]['text']+'</div></div></li>');
+                        console.log(data[id]['sentiment']);
+                        var iconBase = 'http://maps.gstatic.com/mapfiles/ridefinder-images/';
+                        var icons = {
+                            'positive': iconBase + 'mm_20_green.png',
+                            'neutral': iconBase + 'mm_20_yellow.png',
+                            'negative': iconBase + 'mm_20_red.png'};
+                        var panel = {
+                            'positive': 'panel-success',
+                            'negative': 'panel-danger',
+                            'neutral': 'panel-warning'
+                        };
+                        var sentiment = data[id]['sentiment']
+                        $("#newtweets").append('<li><div class="panel '+panel[sentiment]+'"><div class="panel-heading">@'+data[id]['handle']+'</div><div class="panel-body">'+data[id]['text']+'</div></div></li>');
                         var item = data[id]['coordinates']
                         var latlng = new google.maps.LatLng(item['coordinates'][1], item['coordinates'][0]);
-                        var marker = new google.maps.Marker({position: latlng, map:map});
+                        var marker = new google.maps.Marker({position: latlng, icon:icons[sentiment], map:map});
                     }
                     else
                         console.log('No match for filter')
