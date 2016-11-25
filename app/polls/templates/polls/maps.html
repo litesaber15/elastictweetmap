@@ -67,89 +67,88 @@
         <div id="map"></div>
         <script>
         var map;
-function initMap() {
-    var nyc = {lat: 40.7128, lng: -74.0059};
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 10,
-        center: nyc
-    });
-    // var marker = new google.maps.Marker({
-    //     position: uluru,
-    //     map: map
-    // });
-
-    var tweets = {{plot | safe}};
-       if(tweets.length>0){
-       //alert(tweets.length + " results found with filter "+$('#select').val());
-       $('#count').html(tweets.length.toString() + ' Tweets');
-        for (i = 0; i < tweets.length; i++) 
-        {
-            var item = tweets[i];
-            var latlng = new google.maps.LatLng(item['lat'], item['lng']);
-            var marker = new google.maps.Marker({
-            position: latlng,
-            map: map,
+        function initMap() {
+            var nyc = {lat: 40.7128, lng: -74.0059};
+            var iconBase = 'http://maps.gstatic.com/mapfiles/ridefinder-images/';
+            var icons = {
+                'positive': iconBase + 'mm_20_green.png',
+                'neutral': iconBase + 'mm_20_yellow.png',
+                'negative': iconBase + 'mm_20_red.png'};
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: nyc
             });
-        }
-        //map.setZoom(2);
-    }
-}
 
-
-(function worker() {
-  $.ajax({
-    url: 'ajax/getnewtweets', 
-    success: function(data) {
-        var filter = $('#select').val();
-        var c = 0;
-        for (id in data)
-        {
-            console.log(data[id]);
-            /*if(filter == 'none' || data[id]['text'].indexOf(filter) !== -1)
+            var tweets = {{plot|safe}};
+            if(tweets.length>0)
             {
-                c += 1;
-                console.log(data[id]['text']);
-                $("#newtweets").append('<li><div class="panel panel-default"><div class="panel-heading">@'+data[id]['handle']+'</div><div class="panel-body">'+data[id]['text']+'</div></div></li>');
-                var item = data[id]['coordinates']
-                var latlng = new google.maps.LatLng(item['coordinates'][1], item['coordinates'][0]);
-                var marker = new google.maps.Marker({position: latlng, map:map});
+               //alert(tweets.length + " results found with filter "+$('#select').val());
+               $('#count').html(tweets.length.toString() + ' Tweets');
+                for (i = 0; i < tweets.length; i++) 
+                {
+                    var item = tweets[i];
+                    var latlng = new google.maps.LatLng(item['lat'], item['lng']);
+                    var marker = new google.maps.Marker(
+                        {
+                            position: latlng,
+                            icon: icons[item['sentiment']],
+                            map: map
+                        });
+                }
             }
-            else
-                console.log('No match for filter')*/
-        }
-        if(c>0)
-        {
-            var res = parseInt($('#count').text().split(" ")[0]);
-            res = res + c;
-            $('#count').html(res.toString() + ' Tweets');
-
         }
 
-      
-    },
-    complete: function() {
-      // Schedule the next request when the current one's complete
-      setTimeout(worker, 2000);
-    }
-  });
-})();
+        (function worker() {
+          $.ajax({
+            url: 'ajax/getnewtweets', 
+            success: function(data) {
+                var filter = $('#select').val();
+                var c = 0;
+                for (id in data)
+                {
+                    if(filter == 'none' || data[id]['text'].indexOf(filter) !== -1)
+                    {
+                        c += 1;
+                        console.log(data[id]['text']);
+                        $("#newtweets").append('<li><div class="panel panel-default"><div class="panel-heading">@'+data[id]['handle']+'</div><div class="panel-body">'+data[id]['text']+'</div></div></li>');
+                        var item = data[id]['coordinates']
+                        var latlng = new google.maps.LatLng(item['coordinates'][1], item['coordinates'][0]);
+                        var marker = new google.maps.Marker({position: latlng, map:map});
+                    }
+                    else
+                        console.log('No match for filter')
+                }
+                if(c>0)
+                {
+                    var res = parseInt($('#count').text().split(" ")[0]);
+                    res = res + c;
+                    $('#count').html(res.toString() + ' Tweets');
+                }
+
+              
+            },
+            complete: function() {
+              // Schedule the next request when the current one's complete
+              setTimeout(worker, 2000);
+            }
+          });
+        })();
 
 
-window.onbeforeunload = function() {
-    localStorage.setItem('filter', $('#select').val());
-    console.log('Stored filter '+ $('#select').val());
-}
+        window.onbeforeunload = function() {
+            localStorage.setItem('filter', $('#select').val());
+            console.log('Stored filter '+ $('#select').val());
+        }
 
 
-window.onload = function() {
+        window.onload = function() {
 
-    var filter = localStorage.filter;
-    console.log('Loaded filter '+ filter);
-    if (filter !== null) $('#select').val(filter);
-}
-
-
+            var filter = localStorage.filter;
+            console.log('Loaded filter '+ filter);
+            if (filter !== null) $('#select').val(filter);
+        }
         </script>
+
         <div>
             <form name="form" action="/polls/map" method='POST' class="margin">
                 <select id = 'select' name="select" class="form-control">
@@ -174,9 +173,7 @@ window.onload = function() {
             <h1>Live Tweets</h1>
             <ul id="newtweets" class="list-unstyled" style="margin-left: 20%; margin-right: 20%; margin-top: 2%">
             </ul>
-
         </div>
-
 
         <script async defer
                         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAB8-ny5X3TRAkXsjgO7idxXFuRrLx4g1I&callback=initMap"></script>

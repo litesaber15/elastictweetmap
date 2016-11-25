@@ -65,8 +65,8 @@ def testfun(request):
 	global shared
 	global c
 	c+=1
-	shared[c] = request.body
-	return JsonResponse({'hi':request.body})
+	shared[c] = ast.literal_eval(ast.literal_eval(request.body)['Message'])
+	return JsonResponse({'hi':shared[c]})
 
 def livestream(request):
 	global count
@@ -111,5 +111,6 @@ def map(request):
 		temp_coordinates = source_value['coordinates']['coordinates']
 		#print(temp_coordinates)
 		#tweet_info = source_value['user'] + ": " + source_value['content']
-		list_of_dicts[idx] = dict(lng=temp_coordinates[0], lat = temp_coordinates[1])
+		list_of_dicts[idx] = dict(lng=temp_coordinates[0], lat = temp_coordinates[1], sentiment=str(source_value['sentiment']))#, sentiment=source_value['sentiment'])
+	print(list_of_dicts)
 	return render(request, "polls/maps.html", {'plot':list_of_dicts})
