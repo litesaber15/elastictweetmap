@@ -9,7 +9,7 @@ from alchemyapi import AlchemyAPI
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 import sys
-reload(sys)
+from concurrent.futures import ThreadPoolExecutor
 
 class NotificationManager():
 	def __init__(self, aws_id, aws_key, es, aws_region='us-west-2', sqs_name='new-tweet-notifs'):
@@ -20,47 +20,50 @@ class NotificationManager():
 			self.alc = AlchemyAPI()
 			self.sns = boto.sns.connect_to_region(aws_region)
 			self.es = es
+			self.thread_pool = ThreadPoolExecutor(max_workers=4)
 		except Exception as e:
 			print('Could not connect')
 			print(e)
 		print('Connected to AWS SQS: '+ str(self.sqs))
 
+	def worker_task(self, m):
+		error = False
+		print('Opening notification')
+		body = m.get_body()
+		tweet= ast.literal_eval(body)
+		#do something with the tweet
+		print(tweet['text'])
+		response = self.alc.sentiment("text", tweet['text'])
+		if(response['status']=='ERROR'):
+			print('ERROR')
+			error = True
+		if not error:
+			tweet['sentiment'] = response["docSentiment"]["type"]
+			print("Sentiment: "+ tweet['sentiment'])
+
+			#add to Elasticsearch
+			try:
+				self.es.index(index="tweets", doc_type="twitter_twp", body=tweet)
+			except Exception as e:
+				print('Elasticserch indexing failed')
+				print(e)
+
+
+			json_string = json.dumps(tweet)
+			#send processed tweet to SNS
+			self.sns.publish(arn, json_string, subject='Sub')
+
+			#delete notification when done
+			self.sqs_queue.delete_message(m)
+			print('Done')
+
 	def openNotifications(self):
 		while True:
 			#poll for new notifs every second
 			rs = self.sqs_queue.get_messages() #result set
-			
 			if len(rs) > 0:
 				for m in rs:
-					print('Opening notification')
-					body = m.get_body()
-					tweet= ast.literal_eval(body)
-					#do something with the tweet
-					print(tweet['text'])
-					response = self.alc.sentiment("text", tweet['text'])
-					if(response['status']=='ERROR'):
-						print('ERROR')
-						break
-					tweet['sentiment'] = response["docSentiment"]["type"]
-					print("Sentiment: "+ tweet['sentiment'])
-
-					#add to Elasticsearch
-					try:
-						self.es.index(index="tweets", doc_type="twitter_twp", body=tweet)
-					except Exception as e:
-						print('Elasticserch indexing failed')
-						print(e)
-						break
-
-					json_string = json.dumps(tweet)
-					#send processed tweet to SNS
-					self.sns.publish(arn, json_string, subject='Sub')
-
-					#delete notification when done
-					self.sqs_queue.delete_message(m)
-					print('Done')
-			else:
-				sleep(1)	
+					self.thread_pool.submit(self.worker_task, m)
 
 # init Elasticsearch
 awsauth = AWS4Auth(aws_id, aws_key,'us-west-2','es')
@@ -73,6 +76,6 @@ es = Elasticsearch(
         )
 
 #do the magic
-sys.setdefaultencoding('utf-8')
+#sys.setdefaultencoding('utf-8')
 notman = NotificationManager(aws_id, aws_key, es)
 notman.openNotifications()
