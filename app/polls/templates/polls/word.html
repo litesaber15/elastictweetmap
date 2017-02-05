@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Docx Generator</title>
+</head>
+<body>
+	<h1>Docx Generator</h1>
+	<p>
+	Sample of word file with variables: <br>
+	</p>
+	<p style="color:blue">
+	[[name]] was a [[role]] in [[series]]. [[pronoun]] was really popular. <br> <br>
+	</p>
+	<p>
+	Sample of the data file (each line generates a new .docx, each line has values for variables separated by commas): <br>
+	</p>
+	<p style="color:blue">
+	Gandalf the Gray, wizard, Lord of the Rings, He<br>
+	Hermione, wizard, Harry Potter, She<br>
+	Groudon, Pokemon, the Pokemon Series, It<br><br>
+	</p>
+	<p>
+	Sample of mapping: <br>
+	<p>
+	<p style="color:blue">
+	name, role, series, pronoun
+	</p>
+	<p>
+	Make sure the order of mapping and the order of values in each line of data file is same.
+	</p>
+	<form action="submit" method="post" enctype="multipart/form-data">
+	    {% csrf_token %}
+    	{{ form }}
+    	<input type="submit" value="Submit" />
+	</form>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from credentials import aws_id, aws_key, consumer_key, consumer_secret, access_token, access_token_secret, es_host, arn
@@ -8,6 +8,12 @@ import boto.sqs
 from boto.sqs.message import Message
 import ast
 from django.views.decorators.csrf import csrf_exempt
+
+from .forms import UploadFileForm
+from .script import go
+import StringIO
+import zipfile
+import os
 
 shared = {}
 count = 0
@@ -21,6 +27,78 @@ es = Elasticsearch(
         connection_class=RequestsHttpConnection
         )
 print(es.info())
+
+def download_zip(request, fnames):
+	filenames = fnames.split(',')
+	zip_subdir = "files"
+	zip_filename = "%s.zip" % zip_subdir
+
+	# Open StringIO to grab in-memory ZIP contents
+	s = StringIO.StringIO()
+
+	# The zip compressor
+	zf = zipfile.ZipFile(s, "w")
+
+	for fpath in filenames:
+		# Calculate path for file in zip
+		fdir, fname = os.path.split(fpath)
+		zip_path = os.path.join(zip_subdir, fname)
+
+		# Add file, at correct path
+		zf.write('polls/'+fpath, zip_path)
+
+	# Must close zip for all contents to be written
+	zf.close()
+
+	# Grab ZIP file from in-memory, make response with correct MIME-type
+	resp = HttpResponse(s.getvalue())
+	resp['content_type'] = "application/x-zip-compressed"
+	# ..and correct content-disposition
+	resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+	return resp
+
+
+def download(request, file):
+	with open('polls/'+file, 'rb') as pdf:
+		response = HttpResponse(pdf.read())
+		response['content_type'] = 'application/pdf'
+		response['Content-Disposition'] = 'attachment;filename=file.docx'
+		print('Returning file')
+		return response
+
+def submit(request):
+	print('Here')
+	if request.method == 'POST':
+		form = UploadFileForm(request.POST, request.FILES)
+		flist, fnames = handle_uploaded_file(request.FILES.get('word_file', None), request.FILES.get('data_file', None), request.POST['variable_names'])
+		#return HttpResponseRedirect('polls/submit')
+		return render(request, "polls/done.html", {'flist':flist, 'fnames':fnames})
+
+	else:
+		print('Here')
+		form = UploadFileForm()
+		return render(request, 'polls/word.html', {'form': form})
+
+def handle_uploaded_file(f1, f2, vnames):
+	print('In upload file')
+	vnames = vnames.split(',')
+	vnames = [t.strip() for t in vnames if t.strip!='']
+	with open('polls/demo.docx', 'wb+') as destination:
+		for chunk in f1.chunks():
+			destination.write(chunk)
+	with open('polls/data.csv', 'wb+') as destination:
+		for chunk in f2.chunks():
+			destination.write(chunk)
+	flist = go(vnames)
+	fnames = ''
+	first = True
+	for n in flist:
+		if first:
+			fnames = n
+			first = False
+		else:
+			fnames += ',' + n
+	return flist, fnames
 
 class NotificationManager():
 	def __init__(self, aws_id, aws_key, aws_region='us-west-2', sqs_name='new-tweet-notifs'):
@@ -54,7 +132,11 @@ class NotificationManager():
 		return res
 
 def index(request):
-    return render(request, "polls/maps.html")
+    return render(request, "polls/word.html")
+
+# @csrf_exempt
+# def submit(request):
+# 	print(request.POST)
 
 @csrf_exempt
 def testfun(request):

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Docx Generator</title>
+</head>
+<body>
+	<h1>Docx Generator</h1>
+	<p>That was easy:</p>
+	<ul>
+		{% for f in flist %}
+    		<li><a href="download/{{f}}/">{{f}}</a></li>
+		{% endfor %}
+	</ul>
+
+	<a href="download_zip/{{fnames}}/">Download all as zip</a>
+</body>
+</html>
