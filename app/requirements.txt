@@ -9,7 +9,7 @@ elasticsearch==5.0.0
 futures==3.0.5
 httplib2==0.9.2
 kombu==3.0.37
-lxml==3.7.2
+lxml==4.6.3
 oauthlib==2.0.0
 python-docx==0.8.6
 pytz==2016.7
