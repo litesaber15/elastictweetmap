@@ -19,4 +19,4 @@ requests-aws4auth==0.9
 requests-oauthlib==0.7.0
 six==1.10.0
 tweepy==3.5.0
-urllib3==1.18
+urllib3==1.26.5
