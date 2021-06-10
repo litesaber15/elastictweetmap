@@ -4,7 +4,7 @@ aylien-apiclient==0.6.0
 billiard==3.3.0.23
 boto==2.43.0
 celery==3.1.24
-Django==1.10.2
+Django==2.2.24
 elasticsearch==5.0.0
 futures==3.0.5
 httplib2==0.9.2
